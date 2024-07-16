@@ -2,7 +2,8 @@ const browserCreator = require('./browser');
 
 
 function checkTimeOut(startTime, endTime = new Date().getTime()) {
-    return (endTime - startTime) > process.env.timeOut || 60000
+    let set_timeOut = process.env.timeOut !== undefined ? process.env.timeOut : 60000;
+    return (endTime - startTime) > set_timeOut;
 }
 
 
@@ -33,6 +34,7 @@ const scrape = async ({
                     brw.close()
                 } catch (err) {
                 }
+                console.log("Timeout 1")
                 return resolve({code: 500, message: 'Request Timeout'})
             }, process.env.timeOut || 60000);
             var {page, browser} = await browserCreator({proxy, agent})
@@ -107,8 +109,9 @@ const scrape = async ({
             });
 
             await page.goto(url, {
-                waitUntil: ['load', 'networkidle0']
-            })
+                waitUntil: ['load', 'networkidle0'],
+                timeout: 0,
+            },)
 
             if (mode === 'captcha') return
 
@@ -125,6 +128,7 @@ const scrape = async ({
                 if (checkTimeOut(startTime)) {
                     await browser.close()
                     global.browserLength--
+                    console.log("Timeout2")
                     return resolve({code: 500, message: 'Request Timeout'})
                 }
             }

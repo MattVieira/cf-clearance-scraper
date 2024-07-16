@@ -96,8 +96,8 @@ const main = async ({
         let page = await browser.pages();
         page = page[0];
 
-        if (proxy.username && proxy.password) await page.authenticate({
-            username: `${proxy.username}${proxy.session_id ? `-session-${proxy.session_id}` : ''}`,
+        if (proxy.username && proxy.password && proxy.session_id) await page.authenticate({
+            username: `${proxy.username}-session-${proxy.session_id}`,
             password: proxy.password
         });
 
