@@ -21,6 +21,8 @@ app.listen(port, () => {
 
 app.post('/cf-clearance-scraper', async (req, res) => {
 
+    console.log(`Fecthing cf_clearance for: ${req.body['url']}`);
+
     if (authToken && req.body.authToken !== authToken) return res.status(401).json({code: 401, message: 'Unauthorized'})
 
     if (global.browserLength >= global.browserLimit) return res.status(429).json({
