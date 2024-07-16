@@ -14,12 +14,13 @@ function formatLanguage(languages) {
     return str
 }
 
-const scrape = async ({ proxy = {},
-    agent = null,
-    url = 'https://nopecha.com/demo/cloudflare',
-    defaultCookies = false,
-    mode = 'waf'
-}) => {
+const scrape = async ({
+                          proxy = {},
+                          agent = null,
+                          url = 'https://nopecha.com/demo/cloudflare',
+                          defaultCookies = false,
+                          mode = 'waf'
+                      }) => {
     return new Promise(async (resolve, reject) => {
         global.browserLength++
         var brw = null,
@@ -28,14 +29,20 @@ const scrape = async ({ proxy = {},
         try {
             setTimeout(() => {
                 global.browserLength--
-                try { brw.close() } catch (err) { }
-                return resolve({ code: 500, message: 'Request Timeout' })
+                try {
+                    brw.close()
+                } catch (err) {
+                }
+                return resolve({code: 500, message: 'Request Timeout'})
             }, global.timeOut);
-            var { page, browser } = await browserCreator({ proxy, agent })
+            var {page, browser} = await browserCreator({proxy, agent})
 
             brw = browser
 
-            try { if (defaultCookies) await page.setCookie(...defaultCookies) } catch (err) { }
+            try {
+                if (defaultCookies) await page.setCookie(...defaultCookies)
+            } catch (err) {
+            }
 
             var browserLanguages = await page.evaluate(() => navigator.languages);
 
@@ -58,7 +65,7 @@ const scrape = async ({ proxy = {},
                     if (request.url() === url) {
                         const reqHeaders = request.headers();
                         delete reqHeaders['cookie'];
-                        headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
+                        headers = {...headers, ...reqHeaders, host: new URL(url).hostname};
                     }
                 }
 
@@ -71,20 +78,29 @@ const scrape = async ({ proxy = {},
                         if (responseBody && responseBody.token) {
                             var cookies = await page.cookies()
                             global.browserLength--
-                            try { browser.close() } catch (err) { }
-                            resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: responseBody })
+                            try {
+                                browser.close()
+                            } catch (err) {
+                            }
+                            resolve({code: 200, cookies, agent, proxy, url, headers, turnstile: responseBody})
                         }
-                    } catch (err) { }
+                    } catch (err) {
+                    }
                 } else if (mode == 'captcha') {
                     var checkToken = await page.evaluate(() => {
                         var cfItem = document.querySelector('[name="cf-turnstile-response"]')
                         return cfItem && cfItem.value && cfItem.value.length > 0 ? cfItem.value : false
-                    }).catch(err => { return false })
+                    }).catch(err => {
+                        return false
+                    })
                     if (checkToken) {
                         var cookies = await page.cookies()
                         global.browserLength--
-                        try { browser.close() } catch (err) { }
-                        return resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: { token: checkToken } })
+                        try {
+                            browser.close()
+                        } catch (err) {
+                        }
+                        return resolve({code: 200, cookies, agent, proxy, url, headers, turnstile: {token: checkToken}})
                     }
                 }
             });
@@ -101,12 +117,14 @@ const scrape = async ({ proxy = {},
                 try {
                     cookies = await page.cookies()
                     if (!cookies.find(cookie => cookie.name === 'cf_clearance')) cookies = false
-                } catch (err) { cookies = false }
+                } catch (err) {
+                    cookies = false
+                }
                 await new Promise(resolve => setTimeout(resolve, 50))
                 if (checkTimeOut(startTime)) {
                     await browser.close()
                     global.browserLength--
-                    return resolve({ code: 500, message: 'Request Timeout' })
+                    return resolve({code: 500, message: 'Request Timeout'})
                 }
             }
 
@@ -116,12 +134,15 @@ const scrape = async ({ proxy = {},
             await browser.close()
             global.browserLength--
 
-            return resolve({ code: 200, cookies, agent, proxy, url, headers })
+            return resolve({code: 200, cookies, agent, proxy, url, headers})
 
         } catch (err) {
             global.browserLength--
-            try { brw.close() } catch (err) { }
-            return resolve({ code: 500, message: err.message })
+            try {
+                brw.close()
+            } catch (err) {
+            }
+            return resolve({code: 500, message: err.message})
         }
     })
 }

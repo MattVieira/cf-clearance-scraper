@@ -1,12 +1,12 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-var Xvfb = require('xvfb');
+let Xvfb = require('xvfb');
 
-const checkStat = ({ page }) => {
-    return new Promise(async (resolve, reject) => {
+const checkStat = ({page}) => {
+    return new Promise(async (resolve) => {
 
-        var st = setTimeout(() => {
+        const st = setTimeout(() => {
             clearInterval(st)
             resolve(false)
         }, 4000);
@@ -21,7 +21,8 @@ const checkStat = ({ page }) => {
                     const y = box.y + box.height / 2;
 
                     await page.mouse.click(x, y);
-                } catch (err) { }
+                } catch (err) {
+                }
             }
             clearInterval(st)
             resolve(true)
@@ -34,47 +35,47 @@ const checkStat = ({ page }) => {
 }
 
 
-
-
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
 const main = async ({
-    proxy = {},
-    agent = null
-}) => {
+                        proxy = {},
+                        agent = null
+                    }) => {
     try {
-        var solve_status = true
+        let solve_status = true
 
-        const setSolveStatus = ({ status }) => {
+        const setSolveStatus = ({status}) => {
             solve_status = status
         }
 
 
-        const autoSolve = ({ page }) => {
-            return new Promise(async (resolve, reject) => {
+        const autoSolve = ({page}) => {
+            return new Promise(async (resolve) => {
                 while (solve_status) {
                     try {
                         await sleep(1500)
-                        await checkStat({ page: page }).catch(err => { })
-                    } catch (err) { }
+                        await checkStat({page: page}).catch()
+                    } catch (err) {
+                    }
                 }
                 resolve()
             })
         }
 
-        setSolveStatus({ status: true })
+        setSolveStatus({status: true})
 
 
         try {
-            var xvfbsession = new Xvfb({
+            const xvfbsession = new Xvfb({
                 silent: true,
                 xvfb_args: ['-screen', '0', '1920x1080x24', '-ac']
             });
             xvfbsession.startSync();
-        } catch (err) { }
+        } catch (err) {
+        }
 
 
         const browser = await puppeteer.launch({
@@ -90,21 +91,29 @@ const main = async ({
                 height: 1080
             },
             ignoreHTTPSErrors: true,
-            targetFilter: target => !!target.url(),
         });
 
-        var page = await browser.pages();
+        let page = await browser.pages();
         page = page[0];
 
-        if (proxy.username && proxy.password) await page.authenticate({ username: proxy.username, password: proxy.password });
+        if (proxy.username && proxy.password) await page.authenticate({
+            username: proxy.username,
+            password: proxy.password
+        });
 
         if (agent) await page.setUserAgent(agent);
 
         browser.on('disconnected', async () => {
-            try { xvfbsession.stopSync(); } catch (err) { }
-            try { setSolveStatus({ status: false }) } catch (err) { }
+            try {
+                xvfbsession.stopSync();
+            } catch (err) {
+            }
+            try {
+                setSolveStatus({status: false})
+            } catch (err) {
+            }
         });
-        autoSolve({ page: page, browser: browser })
+        await autoSolve({page: page, browser: browser})
         return {
             page,
             browser
