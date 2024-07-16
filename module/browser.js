@@ -91,13 +91,13 @@ const main = async ({
                 height: 1080
             },
             ignoreHTTPSErrors: true,
+            targetFilter: target => !!target.url(),
         });
-
         let page = await browser.pages();
         page = page[0];
 
         if (proxy.username && proxy.password) await page.authenticate({
-            username: proxy.username,
+            username: `${proxy.username}${proxy.session_id ? `-session-${proxy.session_id}` : ''}`,
             password: proxy.password
         });
 
@@ -113,7 +113,7 @@ const main = async ({
             } catch (err) {
             }
         });
-        await autoSolve({page: page, browser: browser})
+        autoSolve({page: page, browser: browser})
         return {
             page,
             browser

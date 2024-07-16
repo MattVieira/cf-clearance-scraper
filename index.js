@@ -9,7 +9,7 @@ const express = require('express'),
 
 global.browserLength = 0
 global.browserLimit = process.env.browserLimit || 20
-global.timeOut = process.env.timeOut || 30000
+global.timeOut = process.env.timeOut || 60000
 
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))

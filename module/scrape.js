@@ -2,7 +2,7 @@ const browserCreator = require('./browser');
 
 
 function checkTimeOut(startTime, endTime = new Date().getTime()) {
-    return (endTime - startTime) > global.timeOut
+    return (endTime - startTime) > process.env.timeOut || 60000
 }
 
 
@@ -21,7 +21,7 @@ const scrape = async ({
                           defaultCookies = false,
                           mode = 'waf'
                       }) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         global.browserLength++
         var brw = null,
             startTime = new Date().getTime(),
@@ -34,7 +34,7 @@ const scrape = async ({
                 } catch (err) {
                 }
                 return resolve({code: 500, message: 'Request Timeout'})
-            }, global.timeOut);
+            }, process.env.timeOut || 60000);
             var {page, browser} = await browserCreator({proxy, agent})
 
             brw = browser
@@ -72,11 +72,11 @@ const scrape = async ({
             });
 
             page.on('response', async (response) => {
-                if (response.url().includes('/verify/turnstile') && mode == 'captcha') {
+                if (response.url().includes('/verify/turnstile') && mode === 'captcha') {
                     try {
                         const responseBody = await response.json();
                         if (responseBody && responseBody.token) {
-                            var cookies = await page.cookies()
+                            let cookies = await page.cookies()
                             global.browserLength--
                             try {
                                 browser.close()
@@ -86,15 +86,16 @@ const scrape = async ({
                         }
                     } catch (err) {
                     }
-                } else if (mode == 'captcha') {
+                } else if (mode === 'captcha') {
                     var checkToken = await page.evaluate(() => {
                         var cfItem = document.querySelector('[name="cf-turnstile-response"]')
                         return cfItem && cfItem.value && cfItem.value.length > 0 ? cfItem.value : false
                     }).catch(err => {
+                        console.log(err);
                         return false
                     })
                     if (checkToken) {
-                        var cookies = await page.cookies()
+                        let cookies = await page.cookies()
                         global.browserLength--
                         try {
                             browser.close()
@@ -109,7 +110,7 @@ const scrape = async ({
                 waitUntil: ['load', 'networkidle0']
             })
 
-            if (mode == 'captcha') return
+            if (mode === 'captcha') return
 
             var cookies = false
 
