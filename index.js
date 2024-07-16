@@ -33,7 +33,7 @@ app.post('/cf-clearance-scraper', async (req, res) => {
         agent: req.body['agent'],
         url: req.body['url'],
         defaultCookies: req.body['defaultCookies'],
-        mode: (req.body['mode'] && req.body['mode'] == 'captcha') ? 'captcha' : 'waf',
+        mode: (req.body['mode'] && req.body['mode'] === 'captcha') ? 'captcha' : 'waf',
     }).catch(err => {
         return {code: 500, message: err.message}
     })
