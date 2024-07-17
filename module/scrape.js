@@ -34,7 +34,6 @@ const scrape = async ({
                     brw.close()
                 } catch (err) {
                 }
-                console.log("Timeout 1")
                 return resolve({code: 500, message: 'Request Timeout'})
             }, process.env.timeOut || 60000);
             var {page, browser} = await browserCreator({proxy, agent})
@@ -128,7 +127,6 @@ const scrape = async ({
                 if (checkTimeOut(startTime)) {
                     await browser.close()
                     global.browserLength--
-                    console.log("Timeout2")
                     return resolve({code: 500, message: 'Request Timeout'})
                 }
             }
