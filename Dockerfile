@@ -24,8 +24,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install Node.js dependencies
+RUN npm update
 RUN npm install
-RUN npm install -g pm2
 
 # Copy the rest of the application code
 COPY . .
@@ -34,4 +34,4 @@ COPY . .
 EXPOSE 3000
 
 # Command to run the application
-CMD ["pm2-runtime", "index.js"]
+CMD ["node", "index.js"]
